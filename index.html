@@ -1,117 +1,109 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8">
-    <title>Street View events</title>
-    <style>
-      html, body {
-        height: 100%;
-        margin: 0;
-        padding: 0;
+
+<head>
+  <meta charset="utf-8">
+  <title>Street Hear</title>
+  <style>
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+
+    #pano {
+      width: 100%;
+      height: 100%;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="pano"></div>
+  <script>
+    var AudioContext = window.AudioContext || window.webkitAudioContext;
+    var audioCtx = new AudioContext();
+    console.log("context: " + audioCtx)
+
+    var loader = new XMLHttpRequest()
+
+    loader.open("GET", "audio/20150830 132201.m4a")
+    loader.responseType = "arraybuffer"
+    loader.onload = whenLoaded
+    loader.send()
+
+    function whenLoaded(event) {
+      var data = loader.response
+
+      if (data === null) {
+        // There was a problem loading the file.
+        console.log("There was a problem loading the file.")
+        return
       }
-      #map {
-        height: 100%;
-      }
-      #floating-panel {
-        position: absolute;
-        top: 10px;
-        left: 25%;
-        z-index: 5;
-        background-color: #fff;
-        padding: 5px;
-        border: 1px solid #999;
-        text-align: center;
-        font-family: 'Roboto','sans-serif';
-        line-height: 30px;
-        padding-left: 10px;
-      }
-      #pano {
-        width: 50%;
-        height: 100%;
-        float: left;
-      }
-      #floating-panel {
-        width: 45%;
-        height: 100%;
-        float: right;
-        text-align: left;
-        overflow: auto;
-        position: static;
-        border: 0px solid #999;
-      }
-    </style>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAt5UF9EqFa26jDnHC7u3bzoR7NjaxAhwE"></script>
-  </head>
-  <body>
-    <div id="pano"></div>
-    <div id="floating-panel">
-    <table>
-      <tr>
-        <td><b>Position</b></td><td id="position-cell">&nbsp;</td>
-      </tr>
-      <tr>
-        <td><b>POV Heading</b></td><td id="heading-cell">270</td>
-      </tr>
-      <tr>
-        <td><b>POV Pitch</b></td><td id="pitch-cell">0.0</td>
-      </tr>
-      <tr>
-        <td><b>Pano ID</b></td><td id="pano-cell">&nbsp;</td>
-      </tr>
-      <table id="links_table"></table>
-    </table>
-    </div>
-    <script>
-      function initPano() {
-        var panorama = new google.maps.StreetViewPanorama(
-            document.getElementById('pano'), {
-              position: {lat: 40.7598567, lng: -73.9841719},
-              pov: {
-                heading: 270,
-                pitch: 0
-              },
-              visible: true
+
+      // Decode the data.
+      audioCtx.decodeAudioData(data, whenDecoded)
+    }
+
+    function play(audioBuffer, x, y, z, audioContext) {
+      var source = audioContext.createBufferSource()
+      source.buffer = audioBuffer
+
+      var panner = audioContext.createPanner()
+      panner.panningModel = "HRTF"
+      panner.setPosition(x, y, z)
+
+      source.connect(panner)
+      panner.connect(audioContext.destination)
+
+      source.start()
+    }
+
+    function whenDecoded(audioBuffer) {
+      play(audioBuffer, 40.7598567, -73.9841719, 0, audioCtx)
+    }
+
+    function initPano() {
+      var panorama = new google.maps.StreetViewPanorama(
+        document.getElementById('pano'), {
+          position: {
+            lat: 40.7598567,
+            lng: -73.9841719
+          },
+          pov: {
+            heading: 270,
+            pitch: 0
+          },
+          visible: true,
+          linksControl: false,
+          panControl: false,
+          zoomControl: false,
+          addressControl: false,
+          enableCloseButton: false,
+          fullscreenControl: false
+
         });
 
-        panorama.addListener('pano_changed', function() {
-            var panoCell = document.getElementById('pano-cell');
-            panoCell.innerHTML = panorama.getPano();
-        });
+      panorama.addListener('position_changed', function() {
+        var pos = panorama.getPosition();
+        console.log("POS: " + pos);
+        audioCtx.listener.setPosition(pos.lat(), pos.lng(), 0)
+      });
 
-        panorama.addListener('links_changed', function() {
-            var linksTable = document.getElementById('links_table');
-            while (linksTable.hasChildNodes()) {
-              linksTable.removeChild(linksTable.lastChild);
-            }
-            var links = panorama.getLinks();
-            for (var i in links) {
-              var row = document.createElement('tr');
-              linksTable.appendChild(row);
-              var labelCell = document.createElement('td');
-              labelCell.innerHTML = '<b>Link: ' + i + '</b>';
-              var valueCell = document.createElement('td');
-              valueCell.innerHTML = links[i].description;
-              linksTable.appendChild(labelCell);
-              linksTable.appendChild(valueCell);
-            }
-        });
+      panorama.addListener('pov_changed', function() {
+        var heading = panorama.getPov().heading
+        console.log("HD: " + heading);
+        var pitch = panorama.getPov().pitch
+        console.log("PITCH: " + pitch);
 
-        panorama.addListener('position_changed', function() {
-            var positionCell = document.getElementById('position-cell');
-            positionCell.firstChild.nodeValue = panorama.getPosition() + '';
-        });
+        //audioCtx.listener.setOrientation(heading.x, heading.y, heading.z, pitch.x, pitch.y, pitch.z)
+        audioCtx.listener.setOrientation(0, 0, 0, 0, 0, 0)
+      });
+    }
+  </script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAt5UF9EqFa26jDnHC7u3bzoR7NjaxAhwE&callback=initPano" async defer>
+  </script>
+</body>
 
-        panorama.addListener('pov_changed', function() {
-            var headingCell = document.getElementById('heading-cell');
-            var pitchCell = document.getElementById('pitch-cell');
-            headingCell.firstChild.nodeValue = panorama.getPov().heading + '';
-            pitchCell.firstChild.nodeValue = panorama.getPov().pitch + '';
-        });
-      }
-    </script>
-    <script
-        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAt5UF9EqFa26jDnHC7u3bzoR7NjaxAhwE&callback=initPano"
-        async defer>
-    </script>
-  </body>
 </html>
