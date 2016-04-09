@@ -24,11 +24,10 @@
   <script>
     var AudioContext = window.AudioContext || window.webkitAudioContext;
     var audioCtx = new AudioContext();
-    console.log("context: " + audioCtx)
 
     var loader = new XMLHttpRequest()
 
-    loader.open("GET", "audio/20150830 132201.m4a")
+    loader.open("GET", "audio/20160407 162814.m4a")
     loader.responseType = "arraybuffer"
     loader.onload = whenLoaded
     loader.send()
@@ -87,18 +86,12 @@
 
       panorama.addListener('position_changed', function() {
         var pos = panorama.getPosition();
-        console.log("POS: " + pos);
         audioCtx.listener.setPosition(pos.lat(), pos.lng(), 0)
       });
 
       panorama.addListener('pov_changed', function() {
-        var heading = panorama.getPov().heading
-        console.log("HD: " + heading);
-        var pitch = panorama.getPov().pitch
-        console.log("PITCH: " + pitch);
-
-        //audioCtx.listener.setOrientation(heading.x, heading.y, heading.z, pitch.x, pitch.y, pitch.z)
-        audioCtx.listener.setOrientation(0, 0, 0, 0, 0, 0)
+        var heading = panorama.getPov().heading * Math.PI / 180
+        audioCtx.listener.setOrientation(Math.cos(heading), 0, Math.sin(heading), 0, 1, 0)
       });
     }
   </script>
