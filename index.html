@@ -48,9 +48,13 @@
     function play(audioBuffer, x, y, z, audioContext) {
       var source = audioContext.createBufferSource()
       source.buffer = audioBuffer
+      source.loop = true
 
       var panner = audioContext.createPanner()
       panner.panningModel = "HRTF"
+      panner.refDistance = 0.00001
+      panner.maxDistance = 0.01
+      panner.rolloffFactor = 0.1;
       panner.setPosition(x, y, z)
 
       source.connect(panner)
@@ -86,6 +90,7 @@
 
       panorama.addListener('position_changed', function() {
         var pos = panorama.getPosition();
+        console.log(pos.lat() + " " + pos.lng())
         audioCtx.listener.setPosition(pos.lat(), pos.lng(), 0)
       });
 
