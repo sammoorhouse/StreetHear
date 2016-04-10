@@ -22,27 +22,76 @@
 <body>
   <div id="pano"></div>
   <script>
+    var audios = [{
+      "marker": "48th & 7th",
+      "lat": 40.7598383,
+      "lng": -73.9863735,
+      "recorder": "Sam Moorhouse",
+      "filename": "20160407 163345.m4a"
+    }, {
+      "marker": "49th & 7th",
+      "lat": 40.7604606,
+      "lng": -73.9859169,
+      "recorder": "Sam Moorhouse",
+      "filename": "20160407 163051.m4a"
+    }, {
+      "marker": "36th & 6th",
+      "lat": 40.7510879,
+      "lng": -73.989044,
+      "recorder": "Sam Moorhouse",
+      "filename": "20160409 184813.m4a"
+    }, {
+      "marker": "36th & Broadway",
+      "lat": 40.7514509,
+      "lng": -73.989901,
+      "recorder": "Sam Moorhouse",
+      "filename": "20160409 185102.m4a"
+    }, {
+      "marker": "37th & Broadway",
+      "lat": 40.7521813,
+      "lng": -73.9897307,
+      "recorder": "Sam Moorhouse",
+      "filename": "20160409 185352.m4a"
+    }, {
+      "marker": "38th & Broadway",
+      "lat": 40.7529148,
+      "lng": -73.9895457,
+      "recorder": "Sam Moorhouse",
+      "filename": "20160409 185706.m4a"
+    }, {
+      "marker": "750 7th Ave",
+      "lat": 40.761194,
+      "lng": -73.9859775,
+      "recorder": "Sam Moorhouse",
+      "filename": "20160407 162814.m4a"
+    }, ]
+
     var AudioContext = window.AudioContext || window.webkitAudioContext;
     var audioCtx = new AudioContext();
 
-    var loader = new XMLHttpRequest()
+    function loadAudio(filename, lat, lng) {
 
-    loader.open("GET", "audio/20160407 162814.m4a")
-    loader.responseType = "arraybuffer"
-    loader.onload = whenLoaded
-    loader.send()
+      var loader = new XMLHttpRequest()
+      loader.open("GET", "audio/" + filename)
+      loader.responseType = "arraybuffer"
+      loader.onload = whenLoaded
+      loader.send()
 
-    function whenLoaded(event) {
-      var data = loader.response
+      function whenLoaded(event) {
+        var data = loader.response
 
-      if (data === null) {
-        // There was a problem loading the file.
-        console.log("There was a problem loading the file.")
-        return
+        if (data === null) {
+          // There was a problem loading the file.
+          console.log("There was a problem loading the file.")
+          return
+        }
+        audioCtx.decodeAudioData(data, whenDecoded)
       }
 
-      // Decode the data.
-      audioCtx.decodeAudioData(data, whenDecoded)
+      function whenDecoded(audioBuffer) {
+        console.log("play")
+        play(audioBuffer, lat, lng, 0, audioCtx)
+      }
     }
 
     function play(audioBuffer, x, y, z, audioContext) {
@@ -63,9 +112,10 @@
       source.start()
     }
 
-    function whenDecoded(audioBuffer) {
-      play(audioBuffer, 40.7598567, -73.9841719, 0, audioCtx)
-    }
+    audios.forEach(function(audio){
+      loadAudio(audio.filename, audio.lat, audio.lng)
+    })
+
 
     function initPano() {
       var panorama = new google.maps.StreetViewPanorama(
@@ -90,7 +140,6 @@
 
       panorama.addListener('position_changed', function() {
         var pos = panorama.getPosition();
-        console.log(pos.lat() + " " + pos.lng())
         audioCtx.listener.setPosition(pos.lat(), pos.lng(), 0)
       });
 
