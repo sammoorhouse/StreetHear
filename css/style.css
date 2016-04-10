@@ -252,6 +252,7 @@ Nav Panel
   display: block;
   border-bottom: 2px solid #34495D;
   padding: 1em;
+  outline: 0;
 }
 
 .panel a:link,
@@ -259,6 +260,7 @@ Nav Panel
   color: #fff;
 }
 
+.panel #activated,
 .panel a:hover,
 .panel a:active {
   background: #25B89A;
