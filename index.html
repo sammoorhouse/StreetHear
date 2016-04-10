@@ -38,6 +38,10 @@
         <a href="https://github.com/sammoorhouse/StreetHear">
           <span class="icon-github nav-icon"></span>Github</a>
       </li>
+      <li>
+        <a href="#" class="mute">
+          <span class="icon-mute nav-icon"></span>Mute</a>
+      </li>
     </ul>
   </nav>
   <div id="pano" class="push">
@@ -89,13 +93,29 @@
     }, ]
 
     var AudioContext = window.AudioContext || window.webkitAudioContext;
-    var audioCtx = new AudioContext();
+    var audioCtx = new AudioContext()
+    var gainNode = audioCtx.createGain()
+    gainNode.connect(audioCtx.destination)
 
     $(document).ready(function() {
       $('.menu-link').bigSlide({
         "easyClose": true
       });
     });
+
+    var mute = document.querySelector('.mute');
+    mute.onclick = function() { // toggle to mute and unmute sound
+      if (mute.id == "") {
+        gainNode.gain.value = 0; // gain set to 0 to mute sound
+        mute.id = "activated";
+        mute.innerHTML = "Unmute";
+      } else {
+        gainNode.gain.value = 1; // gain set to 1 to unmute sound
+        mute.id = "";
+        mute.innerHTML = "Mute";
+      }
+    }
+
 
     function loadAudio(filename, lat, lng) {
 
@@ -129,13 +149,13 @@
 
       var panner = audioContext.createPanner()
       panner.panningModel = "HRTF"
-      //refDistance / (refDistance + rolloffFactor * (distance - refDistance))
-      panner.refDistance =  0.00001
-      panner.rolloffFactor =  0.05
+        //refDistance / (refDistance + rolloffFactor * (distance - refDistance))
+      panner.refDistance = 0.00001
+      panner.rolloffFactor = 0.05
       panner.setPosition(x, y, z)
 
       source.connect(panner)
-      panner.connect(audioContext.destination)
+      panner.connect(gainNode)
 
       source.start()
     }
