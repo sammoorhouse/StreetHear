@@ -22,6 +22,7 @@
     }
   </style>
   <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,600,900' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
   <link rel="stylesheet" href="css/normalize.css">
   <link rel="stylesheet" href="css/style.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
@@ -33,14 +34,32 @@
     <img src="img/sam-moorhouse.png" width="100" />
 
     <p>An audio map, because I &#9829; NYC</p>
+    <p>Localised sounds fade in and out as you move around the city.</p>
     <ul>
+      <li>
+        <a href="#" class="timessq">
+          <span class="nav-icon fa fa-map-marker"></span>Times Sq
+        </a>
+      </li>
+      <li>
+        <a href="#" class="36-6">
+          <span class="nav-icon fa fa-map-marker"></span>36th &amp; 6th
+        </a>
+      </li>
+      <li>
+        <a href="#" class="36-b">
+          <span class="nav-icon fa fa-map-marker"></span>36th &amp; Broadway
+        </a>
+      </li>
       <li>
         <a href="https://github.com/sammoorhouse/StreetHear">
           <span class="icon-github nav-icon"></span>Github</a>
       </li>
       <li>
         <a href="#" class="mute">
-          <span class="icon-mute nav-icon"></span>Mute</a>
+          <span id="mute-icon" class="nav-icon fa fa-volume-off"></span>
+          <span id="mute-text">Mute</span>
+        </a>
       </li>
     </ul>
   </nav>
@@ -104,18 +123,21 @@
     });
 
     var mute = document.querySelector('.mute');
+    var muteicon = document.querySelector('#mute-icon');
+    var mutetext = document.querySelector('#mute-text');
     mute.onclick = function() { // toggle to mute and unmute sound
       if (mute.id == "") {
         gainNode.gain.value = 0; // gain set to 0 to mute sound
         mute.id = "activated";
-        mute.innerHTML = "Unmute";
+        muteicon.className = "nav-icon fa fa-volume-up"
+        mutetext.innerHTML = "Unmute";
       } else {
         gainNode.gain.value = 1; // gain set to 1 to unmute sound
         mute.id = "";
-        mute.innerHTML = "Mute";
+        muteicon.className = "nav-icon fa fa-volume-off"
+        mutetext.innerHTML = "Mute";
       }
     }
-
 
     function loadAudio(filename, lat, lng) {
 
@@ -185,6 +207,30 @@
           fullscreenControl: false
 
         });
+
+      $(".timessq").click(function() {
+        console.log("initpano")
+        panorama.setPosition({
+          "lat": 40.7598567,
+          "lng": -73.9841719
+        })
+      });
+
+      $(".36-b").click(function() {
+        console.log("initpano")
+        panorama.setPosition({
+          "lat": 40.7514509,
+          "lng": -73.989901,
+        })
+      });
+
+      $(".36-6").click(function() {
+        console.log("initpano")
+        panorama.setPosition({
+          "lat": 40.7510879,
+          "lng": -73.989044,
+        })
+      });
 
       panorama.addListener('position_changed', function() {
         var pos = panorama.getPosition();
