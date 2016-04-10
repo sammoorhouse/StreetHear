@@ -129,9 +129,9 @@
 
       var panner = audioContext.createPanner()
       panner.panningModel = "HRTF"
-      panner.refDistance = 0.00001
-      panner.maxDistance = 0.01
-      panner.rolloffFactor = 0.1;
+      //refDistance / (refDistance + rolloffFactor * (distance - refDistance))
+      panner.refDistance =  0.00001
+      panner.rolloffFactor =  0.05
       panner.setPosition(x, y, z)
 
       source.connect(panner)
@@ -168,7 +168,9 @@
 
       panorama.addListener('position_changed', function() {
         var pos = panorama.getPosition();
-        audioCtx.listener.setPosition(pos.lat(), pos.lng(), 0)
+        var lat = pos.lat()
+        var lng = pos.lng()
+        audioCtx.listener.setPosition(lat, lng, 0)
       });
 
       panorama.addListener('pov_changed', function() {
