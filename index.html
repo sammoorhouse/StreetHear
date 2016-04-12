@@ -63,7 +63,7 @@
           <span class="icon-github nav-icon"></span>Github</a>
       </li>
       <li>
-        <a href="#" class="mute">
+        <a href="#" id="mute">
           <span id="mute-icon" class="nav-icon fa fa-volume-off"></span>
           <span id="mute-text">Mute</span>
         </a>
@@ -95,16 +95,16 @@
       });
     });
 
-    $('.mute').on("click", function() {
-      $(".mute").toggleClass("muted");
+    $('#mute').on("click", function() {
+      $("#mute").toggleClass("muted");
 
-      if ($('.mute').is(".muted")) {
+      if ($('#mute').is(".muted")) {
         gainNode.gain.value = 0;
-        $('#mute-icon').className = "nav-icon fa fa-volume-up"
+        $('#mute-icon').toggleClass("fa-volume-off fa-volume-up")
         $('#mute-text').html("Unmute");
       } else {
         gainNode.gain.value = 1;
-        $('#mute-icon').className = "nav-icon fa fa-volume-off"
+        $('#mute-icon').toggleClass("fa-volume-up fa-volume-off")
         $('#mute-text').html("Mute");
       }
     })
