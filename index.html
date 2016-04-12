@@ -21,11 +21,11 @@
       position: relative;
     }
   </style>
-  <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,600,900' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,600,900">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
   <link rel="stylesheet" href="css/normalize.css">
   <link rel="stylesheet" href="css/style.css">
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
   <script src="js/jquery.big-slide.js"></script>
 </head>
 
@@ -33,7 +33,8 @@
   <nav id="menu" class="panel" role="navigation" style="position: fixed; top: 0px; bottom: 0px; height: 100%; left: -15.625em; width: 15.625em; transition: left 300ms ease;">
     <img src="img/sam-moorhouse.png" width="100" />
 
-    <p>An audio map, because I &#9829; NYC</p>
+    <p>An audio map,
+      <br />because I &#9829; NYC</p>
     <p>Localised sounds fade in and out as you move around the city.</p>
     <ul>
       <li>
@@ -51,12 +52,18 @@
           <span class="nav-icon fa fa-map-marker"></span>36th &amp; Broadway
         </a>
       </li>
+    </ul>
+    <ul>
+      <li>
+        <a href="https://www.littleplasticsquares.com">
+          <span class="nav-icon fa fa-user"></span>Sam Moorhouse</a>
+      </li>
       <li>
         <a href="https://github.com/sammoorhouse/StreetHear">
           <span class="icon-github nav-icon"></span>Github</a>
       </li>
       <li>
-        <a href="#" class="mute">
+        <a href="#" id="mute">
           <span id="mute-icon" class="nav-icon fa fa-volume-off"></span>
           <span id="mute-text">Mute</span>
         </a>
@@ -67,54 +74,20 @@
     <a href="#menu" class="menu-link">&#9776;</a>
   </div>
   <script>
-    var audios = [{
-      "marker": "48th & 7th",
-      "lat": 40.7598383,
-      "lng": -73.9863735,
-      "recorder": "Sam Moorhouse",
-      "filename": "20160407 163345.m4a"
-    }, {
-      "marker": "49th & 7th",
-      "lat": 40.7604606,
-      "lng": -73.9859169,
-      "recorder": "Sam Moorhouse",
-      "filename": "20160407 163051.m4a"
-    }, {
-      "marker": "36th & 6th",
-      "lat": 40.7510879,
-      "lng": -73.989044,
-      "recorder": "Sam Moorhouse",
-      "filename": "20160409 184813.m4a"
-    }, {
-      "marker": "36th & Broadway",
-      "lat": 40.7514509,
-      "lng": -73.9898957,
-      "recorder": "Sam Moorhouse",
-      "filename": "20160409 185102.m4a"
-    }, {
-      "marker": "37th & Broadway",
-      "lat": 40.7521813,
-      "lng": -73.9897307,
-      "recorder": "Sam Moorhouse",
-      "filename": "20160409 185352.m4a"
-    }, {
-      "marker": "38th & Broadway",
-      "lat": 40.7529148,
-      "lng": -73.9895457,
-      "recorder": "Sam Moorhouse",
-      "filename": "20160409 185706.m4a"
-    }, {
-      "marker": "750 7th Ave",
-      "lat": 40.761194,
-      "lng": -73.9859775,
-      "recorder": "Sam Moorhouse",
-      "filename": "20160407 162814.m4a"
-    }, ]
+    $.getJSON({
+        url: "audio/desc.json",
+        dataType: "json",
+        success: function(audios) {
+          console.log("done ")
+          $.each(audios, function(i, audio) {
+            loadAudio(audio.filename, audio.lat, audio.lng);
+          })
+        }
+      })
+      .error(function(d, textStatus, error) {
+        console.log("error: ");
+      })
 
-    var AudioContext = window.AudioContext || window.webkitAudioContext;
-    var audioCtx = new AudioContext()
-    var gainNode = audioCtx.createGain()
-    gainNode.connect(audioCtx.destination)
 
     $(document).ready(function() {
       $('.menu-link').bigSlide({
@@ -122,26 +95,24 @@
       });
     });
 
-    var mute = document.querySelector('.mute');
-    var muteicon = document.querySelector('#mute-icon');
-    var mutetext = document.querySelector('#mute-text');
-    mute.onclick = function() { // toggle to mute and unmute sound
-      if (mute.id == "") {
-        gainNode.gain.value = 0; // gain set to 0 to mute sound
-        mute.id = "activated";
-        muteicon.className = "nav-icon fa fa-volume-up"
-        mutetext.innerHTML = "Unmute";
+    $('#mute').on("click", function() {
+      $("#mute").toggleClass("muted");
+
+      if ($('#mute').is(".muted")) {
+        gainNode.gain.value = 0;
+        $('#mute-icon').toggleClass("fa-volume-off fa-volume-up")
+        $('#mute-text').html("Unmute");
       } else {
-        gainNode.gain.value = 1; // gain set to 1 to unmute sound
-        mute.id = "";
-        muteicon.className = "nav-icon fa fa-volume-off"
-        mutetext.innerHTML = "Mute";
+        gainNode.gain.value = 1;
+        $('#mute-icon').toggleClass("fa-volume-up fa-volume-off")
+        $('#mute-text').html("Mute");
       }
-    }
+    })
+
+
 
     function loadAudio(filename, lat, lng) {
-
-      var loader = new XMLHttpRequest()
+      var loader = new XMLHttpRequest() //https://bugs.jquery.com/ticket/11461
       loader.open("GET", "audio/" + filename)
       loader.responseType = "arraybuffer"
       loader.onload = whenLoaded
@@ -163,6 +134,12 @@
       }
     }
 
+
+    var AudioContext = window.AudioContext || window.webkitAudioContext;
+    var audioCtx = new AudioContext()
+    var gainNode = audioCtx.createGain()
+    gainNode.connect(audioCtx.destination)
+
     function play(audioBuffer, x, y, z, audioContext) {
       var source = audioContext.createBufferSource()
       source.buffer = audioBuffer
@@ -170,7 +147,6 @@
 
       var panner = audioContext.createPanner()
       panner.panningModel = "HRTF"
-        //refDistance / (refDistance + rolloffFactor * (distance - refDistance))
       panner.refDistance = 0.00001
       panner.rolloffFactor = 0.05
       panner.setPosition(x, y, z)
@@ -181,14 +157,9 @@
       source.start()
     }
 
-    audios.forEach(function(audio) {
-      loadAudio(audio.filename, audio.lat, audio.lng)
-    })
-
-
     function initPano() {
       var panorama = new google.maps.StreetViewPanorama(
-        document.getElementById('pano'), {
+        $('#pano')[0], {
           position: {
             lat: 40.7598567,
             lng: -73.9841719
@@ -204,24 +175,23 @@
           addressControl: false,
           enableCloseButton: false,
           fullscreenControl: false
-
         });
 
-      $(".timessq").click(function() {
+      $(".timessq").on("click", function() {
         panorama.setPosition({
           "lat": 40.7598567,
           "lng": -73.9841719
         })
       });
 
-      $(".36-b").click(function() {
+      $(".36-b").on("click", function() {
         panorama.setPosition({
           "lat": 40.7514509,
           "lng": -73.9898957,
         })
       });
 
-      $(".36-6").click(function() {
+      $(".36-6").on("click", function() {
         panorama.setPosition({
           "lat": 40.7510879,
           "lng": -73.989044,
@@ -244,15 +214,21 @@
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAt5UF9EqFa26jDnHC7u3bzoR7NjaxAhwE&callback=initPano" async defer>
   </script>
   <script>
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+    (function(i, s, o, g, r, a, m) {
+      i['GoogleAnalyticsObject'] = r;
+      i[r] = i[r] || function() {
+        (i[r].q = i[r].q || []).push(arguments)
+      }, i[r].l = 1 * new Date();
+      a = s.createElement(o),
+        m = s.getElementsByTagName(o)[0];
+      a.async = 1;
+      a.src = g;
+      m.parentNode.insertBefore(a, m)
+    })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga');
 
-  ga('create', 'UA-76204437-1', 'auto');
-  ga('send', 'pageview');
-
-</script>
+    ga('create', 'UA-76204437-1', 'auto');
+    ga('send', 'pageview');
+  </script>
 </body>
 
 </html>
