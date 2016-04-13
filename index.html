@@ -4,9 +4,6 @@
 <head>
   <meta charset="utf-8">
   <title>Street Hear</title>
-  <style>
-
-  </style>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,600,900">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
   <link rel="stylesheet" href="css/normalize.css">
@@ -15,13 +12,17 @@
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
   <script src="js/jquery.big-slide.js"></script>
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAt5UF9EqFa26jDnHC7u3bzoR7NjaxAhwE"></script>
-
   <script src="js/streethear.js"></script>
+  <script src="js/AudioService.js"></script>
+  <script src="js/StreetViewController.js"></script>
+  <script src="js/NavController.js"></script>
 </head>
 
-<body ng-controller="MainController">
+<body ng-controller="StreetViewController">
   <nav ng-controller="NavController" id="menu" class="panel" role="navigation" style="position: fixed; top: 0px; bottom: 0px; height: 100%; left: -15.625em; width: 15.625em; transition: left 300ms ease;">
-    <a href="https://www.littleplasticsquares.com/"><img src="img/sam-moorhouse.png" width="100" /></a>
+    <a href="https://www.littleplasticsquares.com/">
+      <img src="img/sam-moorhouse.png" width="100" />
+    </a>
 
     <p>An audio map,
       <br />because I &#9829; NYC</p>
@@ -53,9 +54,10 @@
           <span class="icon-github nav-icon"></span>Github</a>
       </li>
       <li>
-        <a href="#" id="mute" ng-click=toggleMute()>
-          <span id="mute-icon" class="nav-icon fa fa-volume-off"></span>
-          <span id="mute-text">Mute</span>
+        <a href="#" ng-click="isMuted = !isMuted">
+          <span ng-class="['nav-icon fa', isMuted ? 'fa-volume-up': 'fa-volume-off']"></span>
+          <span ng-if="isMuted">Unmute</span>
+          <span ng-if="!isMuted">Mute</span>
         </a>
       </li>
     </ul>
@@ -64,7 +66,7 @@
     <a href="#menu" class="menu-link">&#9776;</a>
   </div>
   <script>
-    $(document).ready(function() {
+    $(function() {
       $('.menu-link').bigSlide({
         "easyClose": true
       });
