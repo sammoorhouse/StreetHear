@@ -6,7 +6,22 @@ Global Styles
 *, *:before, *:after {
   -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
  }
+ 
+ html,
+ body {
+   height: 100%;
+   margin: 0;
+   padding: 0;
+ }
 
+ #pano {
+   width: 100%;
+   height: 100%;
+ }
+
+ .wrap {
+   position: relative;
+ }
 body {
   font-family: 'Source Sans Pro', sans-serif;
   color: #101820;
