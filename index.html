@@ -1,54 +1,44 @@
 <!DOCTYPE html>
-<html>
+<html ng-app="streethear">
 
 <head>
   <meta charset="utf-8">
   <title>Street Hear</title>
   <style>
-    html,
-    body {
-      height: 100%;
-      margin: 0;
-      padding: 0;
-    }
 
-    #pano {
-      width: 100%;
-      height: 100%;
-    }
-
-    .wrap {
-      position: relative;
-    }
   </style>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,600,900">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
   <link rel="stylesheet" href="css/normalize.css">
   <link rel="stylesheet" href="css/style.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.9/angular.min.js"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
   <script src="js/jquery.big-slide.js"></script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAt5UF9EqFa26jDnHC7u3bzoR7NjaxAhwE"></script>
+
+  <script src="js/streethear.js"></script>
 </head>
 
-<body>
-  <nav id="menu" class="panel" role="navigation" style="position: fixed; top: 0px; bottom: 0px; height: 100%; left: -15.625em; width: 15.625em; transition: left 300ms ease;">
-    <img src="img/sam-moorhouse.png" width="100" />
+<body ng-controller="MainController">
+  <nav ng-controller="NavController" id="menu" class="panel" role="navigation" style="position: fixed; top: 0px; bottom: 0px; height: 100%; left: -15.625em; width: 15.625em; transition: left 300ms ease;">
+    <a href="https://www.littleplasticsquares.com/"><img src="img/sam-moorhouse.png" width="100" /></a>
 
     <p>An audio map,
       <br />because I &#9829; NYC</p>
     <p>Localised sounds fade in and out as you move around the city.</p>
     <ul>
       <li>
-        <a href="#" class="timessq">
+        <a href="#" ng-click="move_timessq()">
           <span class="nav-icon fa fa-map-marker"></span>Times Sq
         </a>
       </li>
       <li>
-        <a href="#" class="36-6">
+        <a href="#" ng-click="move_36_6()">
           <span class="nav-icon fa fa-map-marker"></span>36th &amp; 6th
         </a>
       </li>
       <li>
-        <a href="#" class="36-b">
+        <a href="#" ng-click="move_36_b()">
           <span class="nav-icon fa fa-map-marker"></span>36th &amp; Broadway
         </a>
       </li>
@@ -63,7 +53,7 @@
           <span class="icon-github nav-icon"></span>Github</a>
       </li>
       <li>
-        <a href="#" id="mute">
+        <a href="#" id="mute" ng-click=toggleMute()>
           <span id="mute-icon" class="nav-icon fa fa-volume-off"></span>
           <span id="mute-text">Mute</span>
         </a>
@@ -74,146 +64,11 @@
     <a href="#menu" class="menu-link">&#9776;</a>
   </div>
   <script>
-    $.getJSON({
-        url: "audio/desc.json",
-        dataType: "json",
-        success: function(audios) {
-          console.log("done ")
-          $.each(audios, function(i, audio) {
-            loadAudio(audio.filename, audio.lat, audio.lng);
-          })
-        }
-      })
-      .error(function(d, textStatus, error) {
-        console.log("error: ");
-      })
-
-
     $(document).ready(function() {
       $('.menu-link').bigSlide({
         "easyClose": true
       });
     });
-
-    $('#mute').on("click", function() {
-      $("#mute").toggleClass("muted");
-
-      if ($('#mute').is(".muted")) {
-        gainNode.gain.value = 0;
-        $('#mute-icon').toggleClass("fa-volume-off fa-volume-up")
-        $('#mute-text').html("Unmute");
-      } else {
-        gainNode.gain.value = 1;
-        $('#mute-icon').toggleClass("fa-volume-up fa-volume-off")
-        $('#mute-text').html("Mute");
-      }
-    })
-
-
-
-    function loadAudio(filename, lat, lng) {
-      var loader = new XMLHttpRequest() //https://bugs.jquery.com/ticket/11461
-      loader.open("GET", "audio/" + filename)
-      loader.responseType = "arraybuffer"
-      loader.onload = whenLoaded
-      loader.send()
-
-      function whenLoaded(event) {
-        var data = loader.response
-
-        if (data === null) {
-          // There was a problem loading the file.
-          console.log("There was a problem loading the file.")
-          return
-        }
-        audioCtx.decodeAudioData(data, whenDecoded)
-      }
-
-      function whenDecoded(audioBuffer) {
-        play(audioBuffer, lat, lng, 0, audioCtx)
-      }
-    }
-
-
-    var AudioContext = window.AudioContext || window.webkitAudioContext;
-    var audioCtx = new AudioContext()
-    var gainNode = audioCtx.createGain()
-    gainNode.connect(audioCtx.destination)
-
-    function play(audioBuffer, x, y, z, audioContext) {
-      var source = audioContext.createBufferSource()
-      source.buffer = audioBuffer
-      source.loop = true
-
-      var panner = audioContext.createPanner()
-      panner.panningModel = "HRTF"
-      panner.refDistance = 0.00001
-      panner.rolloffFactor = 0.05
-      panner.setPosition(x, y, z)
-
-      source.connect(panner)
-      panner.connect(gainNode)
-
-      source.start()
-    }
-
-    function initPano() {
-      var panorama = new google.maps.StreetViewPanorama(
-        $('#pano')[0], {
-          position: {
-            lat: 40.7598567,
-            lng: -73.9841719
-          },
-          pov: {
-            heading: 270,
-            pitch: 0
-          },
-          visible: true,
-          linksControl: false,
-          panControl: false,
-          zoomControl: false,
-          addressControl: false,
-          enableCloseButton: false,
-          fullscreenControl: false
-        });
-
-      $(".timessq").on("click", function() {
-        panorama.setPosition({
-          "lat": 40.7598567,
-          "lng": -73.9841719
-        })
-      });
-
-      $(".36-b").on("click", function() {
-        panorama.setPosition({
-          "lat": 40.7514509,
-          "lng": -73.9898957,
-        })
-      });
-
-      $(".36-6").on("click", function() {
-        panorama.setPosition({
-          "lat": 40.7510879,
-          "lng": -73.989044,
-        })
-      });
-
-      panorama.addListener('position_changed', function() {
-        var pos = panorama.getPosition();
-        var lat = pos.lat()
-        var lng = pos.lng()
-        audioCtx.listener.setPosition(lat, lng, 0)
-      });
-
-      panorama.addListener('pov_changed', function() {
-        var heading = panorama.getPov().heading * Math.PI / 180
-        audioCtx.listener.setOrientation(Math.cos(heading), 0, Math.sin(heading), 0, 1, 0)
-      });
-    }
-  </script>
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAt5UF9EqFa26jDnHC7u3bzoR7NjaxAhwE&callback=initPano" async defer>
-  </script>
-  <script>
     (function(i, s, o, g, r, a, m) {
       i['GoogleAnalyticsObject'] = r;
       i[r] = i[r] || function() {
