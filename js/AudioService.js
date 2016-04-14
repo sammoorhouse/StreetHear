@@ -1,18 +1,13 @@
-angular.module("streethear").factory("audioService", ["$window", function($window) {
-    //load audio descriptors
-    $.getJSON({
-        url: "audio/desc.json",
-        dataType: "json",
-        success: function(audios) {
-          $.each(audios, function(i, audio) {
-            loadAudio(audio.filename, audio.lat, audio.lng);
-          })
-        }
+angular.module("streethear").factory("audioService", ["$window", "LocationsService",
+  function($window, locationsService) {
+
+    locationsService.locations(function(locations) {
+      $.each(locations, function(i, location) {
+        loadAudio(location.filename, location.lat, location.lng);
       })
-      .error(function(d, textStatus, error) {
-        console.log("error: ");
-      })
-      //load & process audio files
+    })
+
+    //load & process audio files
     function loadAudio(filename, lat, lng) {
       var loader = new XMLHttpRequest() //https://bugs.jquery.com/ticket/11461
       loader.open("GET", "audio/" + filename)
@@ -28,15 +23,8 @@ angular.module("streethear").factory("audioService", ["$window", function($windo
           console.log("There was a problem loading the file.")
           return
         }
-        console.log("loading " + filename)
         audioCtx.decodeAudioData(data, function(audioBuffer) {
-            console.log("success " + filename)
             play(audioBuffer, lat, lng, 0, audioCtx)
-          },
-
-          function(e) {
-            console.log("error " + filename)
-            console.log("Error with decoding audio data" + e.err)
           }
         )
       }
@@ -49,7 +37,6 @@ angular.module("streethear").factory("audioService", ["$window", function($windo
     gainNode.connect(audioCtx.destination)
 
     function play(audioBuffer, x, y, z, audioContext) {
-      console.log("play")
       var source = audioContext.createBufferSource()
       source.buffer = audioBuffer
       source.loop = true
@@ -75,4 +62,5 @@ angular.module("streethear").factory("audioService", ["$window", function($windo
         audioCtx.listener.setOrientation(Math.cos(heading), 0, Math.sin(heading), 0, 1, 0)
       },
     }
-  }])
+  }
+])
