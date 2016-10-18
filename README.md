@@ -1,6 +1,6 @@
 # StreetHear - an Audio map of New York
 
-http://sammoorhouse.github.io/StreetHear
+https://sammoorhouse.github.io/StreetHear
 
 I recorded a bunch of 2-minute(ish) audio files on my iPhone at 
 intersections in midtown Manhatten, mapped them out in 3d space 
