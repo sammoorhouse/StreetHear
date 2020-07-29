@@ -11,7 +11,7 @@
   <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.9/angular.min.js"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
   <script src="js/jquery.big-slide.js"></script>
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAt5UF9EqFa26jDnHC7u3bzoR7NjaxAhwE"></script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBgp5reW1bJ7tbA4otG68xS_vV7xpgJKTs"></script>
   <script src="js/streethear.js"></script>
   <script src="js/LocationsService.js"></script>
   <script src="js/AudioService.js"></script>
@@ -20,7 +20,8 @@
 </head>
 
 <body ng-controller="StreetViewController">
-  <nav ng-controller="NavController" id="menu" class="panel" role="navigation" style="position: fixed; top: 0px; bottom: 0px; height: 100%; left: -15.625em; width: 15.625em; transition: left 300ms ease;">
+  <nav ng-controller="NavController" id="menu" class="panel" role="navigation"
+    style="position: fixed; top: 0px; bottom: 0px; height: 100%; left: -15.625em; width: 15.625em; transition: left 300ms ease;">
     <a href="https://www.littleplasticsquares.com/">
       <img src="img/sam-moorhouse.png" width="100" />
     </a>
@@ -67,14 +68,14 @@
     <a href="#menu" class="menu-link">&#9776;</a>
   </div>
   <script>
-    $(function() {
+    $(function () {
       $('.menu-link').bigSlide({
         "easyClose": true
       });
     });
-    (function(i, s, o, g, r, a, m) {
+    (function (i, s, o, g, r, a, m) {
       i['GoogleAnalyticsObject'] = r;
-      i[r] = i[r] || function() {
+      i[r] = i[r] || function () {
         (i[r].q = i[r].q || []).push(arguments)
       }, i[r].l = 1 * new Date();
       a = s.createElement(o),
